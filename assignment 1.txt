@@ -1,0 +1,35 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load the uploaded image
+image_path =r'C:\Users\91960\Desktop\INFOSYS\34a613bb-7974-48f7-9d6d-5b3ee701c382.jfif'
+image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+
+# Check if the image was loaded successfully
+if image is None:
+    print("Error: Unable to load image. Please check the file path.")
+else:
+    # Function to display images
+    def display_images(images, titles):
+        plt.figure(figsize=(12, 6))
+        
+        # Display the original image
+        plt.subplot(1, 2, 1)
+        plt.imshow(images[0], cmap='gray')
+        plt.title(titles[0])
+        plt.axis('off')
+        
+        # Display the Canny edge detection result
+        plt.subplot(1, 2, 2)
+        plt.imshow(images[1], cmap='gray')
+        plt.title(titles[1])
+        plt.axis('off')
+        
+        plt.show()
+
+    # Canny Edge Detection
+    canny_edges = cv2.Canny(image, 200, 100)
+
+    # Display the original image and the Canny edge detection result
+    display_images([image, canny_edges], ['Original Image', 'Canny Edge Detection'])
