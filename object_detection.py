@@ -18,7 +18,7 @@ Original file is located at
 !wget https://github.com/WongKinYiu/yolov9/releases/download/v0.1/gelan-c.pt
 
 # Commented out IPython magic to ensure Python compatibility.
-# %cd yolov9/
+%cd yolov9
 
 !pip install -r requirements.txt -q
 # Replace the source with your image or video path 
