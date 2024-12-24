@@ -1,4 +1,3 @@
-
 import cv2
 from ultralytics import YOLO
 
@@ -7,8 +6,6 @@ model = YOLO('yolo11l.pt')
 class_names = model.names
 class_names
 
-import cv2
-import numpy as np
 
 def get_center_frame(video_path):
     """Capture the center frame of the video."""
@@ -91,14 +88,7 @@ def main():
 
     cv2.destroyAllWindows()
 
-if __name__ == "__main__":
-    main()
-
 cap = cv2.VideoCapture(r'C:\Users\DELL\Downloads\istockphoto-1492560725-640_adpp_is.mp4')
-
-"""import cv2
-import time
-from collections import defaultdict
 
 # Polygon coordinates
 polygons = {
@@ -165,7 +155,10 @@ while cap.isOpened():
 
         # Display counts for each polygon
         for polygon_id, person_times in person_time_in_polygon.items():
+            cv2.putText(frame, f"Polygon {polygon_id} - People: {len(person_times)}", 
+
             cv2.putText(frame, f"Polygon {polygon_id} - People: {len(person_times)}",
+
                         (10, 30 * polygon_id), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
 
         # Display the time each person spent inside each polygon
@@ -175,6 +168,7 @@ while cap.isOpened():
             for track_id, time_spent in person_times.items():
                 minutes_spent = time_spent / 30  # Convert frames to minutes (assuming 30 FPS)
                 color = (255, 255, 0) if track_id != max_time_id else (0, 0, 255)  # Highlight max time person
+                cv2.putText(frame, f"Polygon {polygon_id} - ID {track_id} Time: {minutes_spent:.2f} min", 
                 cv2.putText(frame, f"Polygon {polygon_id} - ID {track_id} Time: {minutes_spent:.2f} min",
                             (10, y_offset), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
                 y_offset += 20
@@ -188,13 +182,6 @@ while cap.isOpened():
 
 cap.release()
 cv2.destroyAllWindows()
-
-"""
-
-import cv2
-import time
-import numpy as np
-from collections import defaultdict
 
 # Polygon coordinates
 polygons = {
@@ -294,12 +281,6 @@ for track_id, frames in track_data.items():
     for data in frames:
         print(f"  Frame {data['frame']} - Bounding Box: {data['bounding_box']} - Center: {data['center']}")
 
-import cv2
-import numpy as np
-import csv
-from collections import defaultdict
-from ultralytics import YOLO
-
 # Polygon coordinates
 polygons = {
     1: [(646, 170), (694, 182), (566, 428), (291, 430)],  # Polygon 1
@@ -368,11 +349,6 @@ with open(csv_file, "w", newline="") as f:
 
 cap.release()
 print(f"Tracking data saved to {csv_file}")
-
-import csv
-import numpy as np
-from collections import defaultdict
-
 # Polygon coordinates
 polygons = {
     1: [(646, 170), (694, 182), (566, 428), (291, 430)],  # Polygon 1
@@ -436,17 +412,6 @@ for polygon_id, track_times in time_spent_in_polygons.items():
 print("\nPeak Time Analysis:")
 for polygon_id, peak_count in peak_time_in_polygons.items():
     print(f"Polygon {polygon_id} had a peak of {peak_count} people simultaneously.")
-
-import cv2
-import numpy as np
-import os
-import dash
-from dash import dcc, html, Input, Output, State
-from dash.exceptions import PreventUpdate
-import base64
-import io
-from collections import defaultdict
-from ultralytics import YOLO
 
 # Initialize Dash app
 app = dash.Dash(__name__)
