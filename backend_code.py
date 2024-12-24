@@ -1,11 +1,7 @@
 import cv2
 from ultralytics import YOLO
-
 model = YOLO('yolo11l.pt')
-
 class_names = model.names
-class_names
-
 import cv2
 import numpy as np
 
@@ -92,10 +88,8 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 cap = cv2.VideoCapture(r'C:\Users\DELL\Downloads\istockphoto-1492560725-640_adpp_is.mp4')
-
-"""import cv2
+import cv2
 import time
 from collections import defaultdict
 
@@ -164,7 +158,7 @@ while cap.isOpened():
 
         # Display counts for each polygon
         for polygon_id, person_times in person_time_in_polygon.items():
-            cv2.putText(frame, f"Polygon {polygon_id} - People: {len(person_times)}",
+            cv2.putText(frame, f"Polygon {polygon_id} - People: {len(person_times)}", 
                         (10, 30 * polygon_id), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
 
         # Display the time each person spent inside each polygon
@@ -174,7 +168,7 @@ while cap.isOpened():
             for track_id, time_spent in person_times.items():
                 minutes_spent = time_spent / 30  # Convert frames to minutes (assuming 30 FPS)
                 color = (255, 255, 0) if track_id != max_time_id else (0, 0, 255)  # Highlight max time person
-                cv2.putText(frame, f"Polygon {polygon_id} - ID {track_id} Time: {minutes_spent:.2f} min",
+                cv2.putText(frame, f"Polygon {polygon_id} - ID {track_id} Time: {minutes_spent:.2f} min", 
                             (10, y_offset), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
                 y_offset += 20
 
@@ -187,9 +181,6 @@ while cap.isOpened():
 
 cap.release()
 cv2.destroyAllWindows()
-
-"""
-
 import cv2
 import time
 import numpy as np
@@ -292,7 +283,6 @@ for track_id, frames in track_data.items():
     print(f"Track ID {track_id}:")
     for data in frames:
         print(f"  Frame {data['frame']} - Bounding Box: {data['bounding_box']} - Center: {data['center']}")
-
 import cv2
 import numpy as np
 import csv
@@ -367,7 +357,6 @@ with open(csv_file, "w", newline="") as f:
 
 cap.release()
 print(f"Tracking data saved to {csv_file}")
-
 import csv
 import numpy as np
 from collections import defaultdict
@@ -435,257 +424,3 @@ for polygon_id, track_times in time_spent_in_polygons.items():
 print("\nPeak Time Analysis:")
 for polygon_id, peak_count in peak_time_in_polygons.items():
     print(f"Polygon {polygon_id} had a peak of {peak_count} people simultaneously.")
-
-import cv2
-import numpy as np
-import os
-import dash
-from dash import dcc, html, Input, Output, State
-from dash.exceptions import PreventUpdate
-import base64
-import io
-from collections import defaultdict
-from ultralytics import YOLO
-
-# Initialize Dash app
-app = dash.Dash(__name__)
-
-# Global variables for storing polygon data
-polygons = []
-current_polygon = []
-video_path = r'C:\Users\DELL\Downloads\istockphoto-1492560725-640_adpp_is.mp4'
-
-
-# Layout definition
-app.layout = html.Div([
-    html.H1("HMI Application for Polygon Tracking"),
-
-    # Video file input
-    html.Label("Select Video File:"),
-    dcc.Upload(
-        id='upload-video',
-        children=html.Div(['Drag and Drop or ', html.A('Select Video File')]),
-        multiple=False
-    ),
-
-    html.Div(id='video-info', style={'margin': '20px 0'}),
-
-    # Polygon drawing interface
-    html.Label("Draw Polygons on Frame:"),
-    html.Div(id="polygon-instructions", children="Click to set polygon vertices. Double-click to complete the polygon."),
-    dcc.Graph(id="frame-graph", config={"scrollZoom": False}),
-
-    # Process button
-    html.Button("Process Video", id="process-button", n_clicks=0),
-    html.Div(id="process-output", style={"margin": "20px 0"}),
-
-    # Report output
-    html.H3("Generated Report"),
-    html.Div(id="report-output")
-])
-
-# Helper function to extract the center frame from the video
-def get_center_frame(video_path):
-    cap = cv2.VideoCapture(video_path)
-    if not cap.isOpened():
-        return None
-
-    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    center_frame_idx = total_frames // 2
-
-    cap.set(cv2.CAP_PROP_POS_FRAMES, center_frame_idx)
-    ret, frame = cap.read()
-    cap.release()
-
-    if not ret:
-        return None
-
-    return frame
-
-# Upload video callback
-@app.callback(
-    Output('frame-graph', 'figure'),
-    [Input('upload-video', 'contents'),
-     Input('frame-graph', 'relayoutData')],
-    [State('upload-video', 'filename')]
-)
-def update_frame_figure(contents, relayout_data, filename):
-    global video_path, polygons
-
-    # Handle video upload
-    if contents:
-        # Decode and save the uploaded video
-        content_type, content_string = contents.split(',')
-        decoded = base64.b64decode(content_string)
-        video_path = os.path.join(os.getcwd(), filename)
-        with open(video_path, 'wb') as f:
-            f.write(decoded)
-
-        # Get the center frame from the video
-        frame = get_center_frame(video_path)
-        if frame is None:
-            return {}
-
-        # Generate the figure for the frame
-        fig = generate_frame_figure(frame)
-        return fig
-
-    # Handle polygon drawing
-    if relayout_data:
-        # This is where you can capture polygon drawing actions
-        # Use relayout_data to capture mouse clicks and update polygons
-        pass
-
-    return {}
-
-def handle_video_upload(contents, filename):
-    global video_path
-
-    if not contents or not filename:
-        raise PreventUpdate
-
-    video_path = os.path.join(os.getcwd(), filename)
-
-    # Decode and save the uploaded video
-    content_type, content_string = contents.split(',')
-    decoded = base64.b64decode(content_string)
-    with open(video_path, 'wb') as f:
-        f.write(decoded)
-
-    frame = get_center_frame(video_path)
-    if frame is None:
-        return "Error: Unable to process video.", {}
-
-    fig = generate_frame_figure(frame)
-    return f"Video uploaded: {filename}", fig
-
-# Generate figure for the frame
-def generate_frame_figure(frame):
-    fig = {
-        "data": [],
-        "layout": {
-            "xaxis": {"visible": False},
-            "yaxis": {"visible": False},
-            "images": [
-                {
-                    "source": cv2.imencode('.jpg', frame)[1].tobytes(),
-                    "xref": "x",
-                    "yref": "y",
-                    "x": 0,
-                    "y": 0,
-                    "sizex": frame.shape[1],
-                    "sizey": frame.shape[0],
-                    "xanchor": "left",
-                    "yanchor": "bottom",
-                    "layer": "below"
-                }
-            ]
-        }
-    }
-    return fig
-
-# Polygon drawing callback (add functionality to capture clicks and draw polygons)
-@app.callback(
-    Output('frame-graph', 'figure'),
-    Input('frame-graph', 'relayoutData')
-)
-def draw_polygon(relayout_data):
-    # Handle drawing logic: Save points and redraw polygons on mouse events
-    pass
-
-# Process button callback
-@app.callback(
-    Output('process-output', 'children'),
-    Input('process-button', 'n_clicks'),
-    prevent_initial_call=True
-)
-def process_video(n_clicks):
-    if not video_path or not polygons:
-        return "Error: Please upload a video and draw polygons first."
-
-    # Initialize video capture
-    cap = cv2.VideoCapture(video_path)
-    if not cap.isOpened():
-        return "Error: Unable to open video."
-
-    fps = int(cap.get(cv2.CAP_PROP_FPS))
-    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-
-    # Prepare YOLO model
-    model = YOLO('yolo11l.pt')
-
-    # Tracking variables
-    time_spent_in_polygons = defaultdict(lambda: defaultdict(float))
-    track_data = defaultdict(list)
-
-    # Process each frame
-    for frame_idx in range(frame_count):
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        results = model.track(frame, persist=True, classes=0)
-        # Process results
-        # Track and record objects inside polygons
-
-    cap.release()
-
-    # Generate report logic
-    report = '# Define video properties (replace with your actual frame rate)
-fps = 0.1
-time_per_frame = 1 / fps
-
-# Variables for analysis
-track_data = defaultdict(list)
-time_spent_in_polygons = defaultdict(lambda: defaultdict(float))
-
-# Read CSV
-csv_file = "track_data.csv"
-with open(csv_file, "r") as f:
-    reader = csv.DictReader(f)
-    for row in reader:
-        track_id = int(row["Track ID"])
-        frame = int(row["Frame"])
-        cx, cy = int(row["Center X"]), int(row["Center Y"])
-        track_data[track_id].append({"frame": frame, "center": (cx, cy)})
-
-        for polygon_id, polygon in polygons.items():
-            if cv2.pointPolygonTest(np.array(polygon, dtype=np.int32), (cx, cy), False) >= 0:
-                time_spent_in_polygons[polygon_id][track_id] += time_per_frame
-
-# Analyze peak times
-frame_count = max(data['frame'] for frames in track_data.values() for data in frames)
-peak_time_in_polygons = defaultdict(int)
-
-for frame in range(1, frame_count + 1):
-    people_in_polygons = defaultdict(int)
-    for track_id, frames in track_data.items():
-        for data in frames:
-            if data["frame"] == frame:
-                cx, cy = data["center"]
-                for polygon_id, polygon in polygons.items():
-                    if cv2.pointPolygonTest(np.array(polygon, dtype=np.int32), (cx, cy), False) >= 0:
-                        people_in_polygons[polygon_id] += 1
-    for polygon_id, count in people_in_polygons.items():
-        peak_time_in_polygons[polygon_id] = max(peak_time_in_polygons[polygon_id], count)
-
-# Generate report
-print("Time Spent in Polygons:")
-for polygon_id, track_times in time_spent_in_polygons.items():
-    max_time_track = max(track_times, key=track_times.get)
-    max_time = track_times[max_time_track]
-    print(f"Polygon {polygon_id}:")
-    print(f"  Maximum time spent: {max_time:.2f} seconds by Track ID {max_time_track}")
-    print(f"  Total unique visitors: {len(track_times)}")
-    for track_id, time_spent in track_times.items():
-        print(f"    Track ID {track_id}: {time_spent:.2f} seconds")
-
-print("\nPeak Time Analysis:")
-for polygon_id, peak_count in peak_time_in_polygons.items():
-    print(f"Polygon {polygon_id} had a peak of {peak_count} people simultaneously.")
-'
-
-    return report
-
-if __name__ == "__main__":
-    app.run_server(debug=True)
